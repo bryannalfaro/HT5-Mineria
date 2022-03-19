@@ -38,9 +38,12 @@ import statsmodels.api as sm
 import warnings
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score ,precision_score,recall_score,f1_score
+from pandas.core.common import SettingWithCopyWarning
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 houses = pd.read_csv('train.csv', encoding='latin1', engine='python')
 
 '''
@@ -212,6 +215,16 @@ x_train_reg, x_test_reg, y_train_reg, y_test_reg = train_test_split(x, y, test_s
 gaussian = GaussianNB()
 gaussian.fit(x_train_reg, y_train_reg)
 y_pred = gaussian.predict(x_test_reg)
+#3
+accuracy=accuracy_score(y_test_reg,y_pred)
+precision =precision_score(y_test_reg, y_pred,average='micro')
+recall =  recall_score(y_test_reg, y_pred,average='micro')
+f1 = f1_score(y_test_reg,y_pred,average='micro')
+print('Accuracy: ',accuracy)
+print('Precision: ',precision)
+print('Recall: ',recall)
+
+#4
 cm = confusion_matrix(y_test_reg,y_pred)
 print(cm)
 
