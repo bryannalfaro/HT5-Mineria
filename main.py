@@ -36,6 +36,8 @@ from yellowbrick.regressor import ResidualsPlot
 from statsmodels.graphics.gofplots import qqplot
 import statsmodels.api as sm
 import warnings
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
@@ -201,13 +203,16 @@ y = houses_df.pop('Clasificacion')
 x = houses_df
 x.pop('MasVnrArea')
 x.pop('GarageYrBlt')
-x.pop('Cluster') # Se elimina para que al analizar el set de pruebas no se tenga en cuenta
+#x.pop('Cluster') # Se elimina para que al analizar el set de pruebas no se tenga en cuenta
 
-random.seed(5236)
+np.random.seed(200)
 
 x_train_reg, x_test_reg, y_train_reg, y_test_reg = train_test_split(x, y, test_size=0.3, train_size=0.7, random_state=0)
 
-
-
+gaussian = GaussianNB()
+gaussian.fit(x_train_reg, y_train_reg)
+y_pred = gaussian.predict(x_test_reg)
+cm = confusion_matrix(y_test_reg,y_pred)
+print(cm)
 
 
