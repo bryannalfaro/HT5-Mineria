@@ -18,12 +18,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import classification_report, mean_squared_error, r2_score, silhouette_score
-from sklearn.linear_model import LinearRegression
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 import pyclustertend
 import random
+from sklearn.cluster import KMeans
 import graphviz
 import sklearn.mixture as mixture
 import scipy.cluster.hierarchy as sch
@@ -36,6 +36,7 @@ from yellowbrick.regressor import ResidualsPlot
 from statsmodels.graphics.gofplots import qqplot
 import statsmodels.api as sm
 import warnings
+import seaborn as sn
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score ,precision_score,recall_score,f1_score
@@ -119,6 +120,7 @@ houses_df.fillna(0)
 df_norm  = (houses_df-houses_df.min())/(houses_df.max()-houses_df.min())
 #print(movies_clean_norm.fillna(0))
 houses_df_final = df_norm.fillna(0)
+
 '''#Analisis de tendencia a agrupamiento
 
 #Metodo Hopkings
@@ -173,6 +175,7 @@ houses_df['Cluster'] = houses_df_final['cluster']
 print((houses_df[houses_df['Cluster']==0]).describe().transpose())
 print((houses_df[houses_df['Cluster']==1]).describe().transpose())
 print((houses_df[houses_df['Cluster']==2]).describe().transpose())
+houses_df.pop('Cluster)
 '''
 
 # Creacion de la respuesta (clasificacion de casas en: Economicas, Intermedias o Caras)
@@ -206,7 +209,6 @@ y = houses_df.pop('Clasificacion')
 x = houses_df
 x.pop('MasVnrArea')
 x.pop('GarageYrBlt')
-#x.pop('Cluster') # Se elimina para que al analizar el set de pruebas no se tenga en cuenta
 
 np.random.seed(200)
 
@@ -214,18 +216,45 @@ x_train_reg, x_test_reg, y_train_reg, y_test_reg = train_test_split(x, y, test_s
 
 gaussian = GaussianNB()
 gaussian.fit(x_train_reg, y_train_reg)
-y_pred = gaussian.predict(x_test_reg)
-#3
-accuracy=accuracy_score(y_test_reg,y_pred)
-precision =precision_score(y_test_reg, y_pred,average='micro')
-recall =  recall_score(y_test_reg, y_pred,average='micro')
-f1 = f1_score(y_test_reg,y_pred,average='micro')
+
+#Utilizando datos de entrenamiento
+y_pred_train = gaussian.predict(x_train_reg)
+accuracy=accuracy_score(y_train_reg,y_pred_train)
+precision =precision_score(y_train_reg, y_pred_train,average='weighted')
+recall =  recall_score(y_train_reg, y_pred_train,average='weighted')
+f1 = f1_score(y_train_reg,y_pred_train,average='weighted')
 print('Accuracy: ',accuracy)
 print('Precision: ',precision)
 print('Recall: ',recall)
 
+cm = confusion_matrix(y_train_reg,y_pred_train)
+sn.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Económicas', 'Intermedias', 'Caras'], yticklabels=['Económicas', 'Intermedias', 'Caras'])
+plt.title('Matriz de Confusion')
+plt.ylabel('Clasificación real')
+plt.xlabel('Clasificación predicha')
+plt.show()
+print('Matriz de confusion con valores de entrenamiento \n',cm)
+
+
+
+#Utilizando datos de prueba
+y_pred = gaussian.predict(x_test_reg)
+accuracy=accuracy_score(y_test_reg,y_pred)
+precision =precision_score(y_test_reg, y_pred,average='weighted')
+recall =  recall_score(y_test_reg, y_pred,average='weighted')
+f1 = f1_score(y_test_reg,y_pred,average='weighted')
+print('Accuracy: ',accuracy)
+print('Precision: ',precision)
+print('Recall: ',recall)
+
+
 #4
 cm = confusion_matrix(y_test_reg,y_pred)
-print(cm)
+sn.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Económicas', 'Intermedias', 'Caras'], yticklabels=['Económicas', 'Intermedias', 'Caras'])
+plt.title('Matriz de Confusion')
+plt.ylabel('Clasificación real')
+plt.xlabel('Clasificación predicha')
+plt.show()
+print('Matriz de confusion con valores de test\n',cm)
 
 
