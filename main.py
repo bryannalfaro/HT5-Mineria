@@ -9,7 +9,6 @@
 '''
 Referencias
 Material brindado en clase
-
 '''
 
 import time
@@ -48,7 +47,6 @@ warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 houses = pd.read_csv('train.csv', encoding='latin1', engine='python')
 
 '''
-
 #Conocimiento de datos
 print(houses.head())
 
@@ -59,7 +57,6 @@ print(houses.shape)
 print(houses.describe().transpose())
 
 print(houses.select_dtypes(exclude=['object']).info())'''
-
 
 '''#Casas que ofrecen todas las utilidades
 print(houses['Utilities'].value_counts())
@@ -214,6 +211,13 @@ np.random.seed(200)
 
 x_train_reg, x_test_reg, y_train_reg, y_test_reg = train_test_split(x, y, test_size=0.3, train_size=0.7, random_state=0)
 
+print(f'x_train_reg: {x_train_reg.shape}')
+print(f'x_test_reg: {x_test_reg.shape}')
+print(f'y_train_reg: {y_train_reg.shape}')
+print(f'y_test_reg: {y_test_reg.shape}')
+
+# Creacion del modelo de bayes ingenuo (Naive Bayes)
+
 gaussian = GaussianNB()
 gaussian.fit(x_train_reg, y_train_reg)
 
@@ -223,7 +227,7 @@ accuracy=accuracy_score(y_train_reg,y_pred_train)
 precision =precision_score(y_train_reg, y_pred_train,average='weighted')
 recall =  recall_score(y_train_reg, y_pred_train,average='weighted')
 f1 = f1_score(y_train_reg,y_pred_train,average='weighted')
-print('Accuracy: ',accuracy)
+print('\nAccuracy: ',accuracy)
 print('Precision: ',precision)
 print('Recall: ',recall)
 
@@ -233,28 +237,29 @@ plt.title('Matriz de Confusion')
 plt.ylabel('Clasificación real')
 plt.xlabel('Clasificación predicha')
 plt.show()
-print('Matriz de confusion con valores de entrenamiento \n',cm)
+print('\nMatriz de confusion con valores de entrenamiento \n',cm)
 
+# Mostrando la variable categorica "Clasificacion" en conjuntos y prediccion
+print('\nClasificacion en conjuntos de entrenamiento\n',y_train_reg)
+print('\nClasificacion predicha en conjuntos de entrenamiento\n',y_pred_train)
+print('tamaño de conjunto predicho: ',len(y_pred_train))
 
-
-#Utilizando datos de prueba
+# Utilizando datos de prueba. Eficiencia del modelo
 y_pred = gaussian.predict(x_test_reg)
 accuracy=accuracy_score(y_test_reg,y_pred)
 precision =precision_score(y_test_reg, y_pred,average='weighted')
 recall =  recall_score(y_test_reg, y_pred,average='weighted')
 f1 = f1_score(y_test_reg,y_pred,average='weighted')
-print('Accuracy: ',accuracy)
+print('\nAccuracy: ',accuracy)
 print('Precision: ',precision)
 print('Recall: ',recall)
 
-
-#4
 cm = confusion_matrix(y_test_reg,y_pred)
 sn.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Económicas', 'Intermedias', 'Caras'], yticklabels=['Económicas', 'Intermedias', 'Caras'])
 plt.title('Matriz de Confusion')
 plt.ylabel('Clasificación real')
 plt.xlabel('Clasificación predicha')
 plt.show()
-print('Matriz de confusion con valores de test\n',cm)
+print('\nMatriz de confusion con valores de test\n',cm)
 
-
+print()
