@@ -40,6 +40,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score ,precision_score,recall_score,f1_score
 from pandas.core.common import SettingWithCopyWarning
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedKFold
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
@@ -261,5 +263,14 @@ plt.ylabel('Clasificación real')
 plt.xlabel('Clasificación predicha')
 plt.show()
 print('\nMatriz de confusion con valores de test\n',cm)
+
+# Validacion cruzada
+
+# validacion cruzada repetida (15 conjuntos en total)
+rkf = RepeatedKFold(n_splits=3, n_repeats=5, random_state=0)
+
+# eficiencia con la validacion cruzada repetida
+cv_scores = cross_val_score(gaussian, x, y, scoring='accuracy', cv=rkf)
+print("\n%0.5f de accuracy con una desviacion estandar de %0.5f" % (cv_scores.mean(), cv_scores.std()))
 
 print()
