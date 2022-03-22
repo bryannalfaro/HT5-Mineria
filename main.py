@@ -24,6 +24,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 import pyclustertend
 import random
 from sklearn.cluster import KMeans
+from sklearn import preprocessing, tree
 import graphviz
 import sklearn.mixture as mixture
 import scipy.cluster.hierarchy as sch
@@ -214,18 +215,26 @@ np.random.seed(200)
 
 x_train_reg, x_test_reg, y_train_reg, y_test_reg = train_test_split(x, y, test_size=0.3, train_size=0.7, random_state=0)
 
-gaussian = GaussianNB()
-gaussian.fit(x_train_reg, y_train_reg)
+# gaussian = GaussianNB()
+# gaussian.fit(x_train_reg, y_train_reg)
 
 #Utilizando datos de entrenamiento
-y_pred_train = gaussian.predict(x_train_reg)
+# y_pred_train = gaussian.predict(x_train_reg)
+
+Dt_model = tree.DecisionTreeClassifier(random_state=0)
+
+Dt_model.fit(x_train_reg, y_train_reg)
+
+y_pred_train = Dt_model.predict(x_train_reg)
+
+
 accuracy=accuracy_score(y_train_reg,y_pred_train)
 precision =precision_score(y_train_reg, y_pred_train,average='weighted')
 recall =  recall_score(y_train_reg, y_pred_train,average='weighted')
 f1 = f1_score(y_train_reg,y_pred_train,average='weighted')
-print('Accuracy: ',accuracy)
-print('Precision: ',precision)
-print('Recall: ',recall)
+print('Decision Tree Accuracy: ',accuracy)
+print('Decision Tree Accuracy: ',precision)
+print('Decision Tree Accuracy: ',recall)
 
 cm = confusion_matrix(y_train_reg,y_pred_train)
 sn.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Económicas', 'Intermedias', 'Caras'], yticklabels=['Económicas', 'Intermedias', 'Caras'])
@@ -238,7 +247,8 @@ print('Matriz de confusion con valores de entrenamiento \n',cm)
 
 
 #Utilizando datos de prueba
-y_pred = gaussian.predict(x_test_reg)
+# y_pred = gaussian.predict(x_test_reg)
+y_pred = Dt_model.predict(x_test_reg)
 accuracy=accuracy_score(y_test_reg,y_pred)
 precision =precision_score(y_test_reg, y_pred,average='weighted')
 recall =  recall_score(y_test_reg, y_pred,average='weighted')
