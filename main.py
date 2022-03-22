@@ -9,7 +9,6 @@
 '''
 Referencias
 Material brindado en clase
-
 '''
 
 import time
@@ -42,6 +41,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score ,precision_score,recall_score,f1_score
 from pandas.core.common import SettingWithCopyWarning
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedKFold
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
@@ -49,7 +50,6 @@ warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 houses = pd.read_csv('train.csv', encoding='latin1', engine='python')
 
 '''
-
 #Conocimiento de datos
 print(houses.head())
 
@@ -60,7 +60,6 @@ print(houses.shape)
 print(houses.describe().transpose())
 
 print(houses.select_dtypes(exclude=['object']).info())'''
-
 
 '''#Casas que ofrecen todas las utilidades
 print(houses['Utilities'].value_counts())
@@ -215,26 +214,36 @@ np.random.seed(200)
 
 x_train_reg, x_test_reg, y_train_reg, y_test_reg = train_test_split(x, y, test_size=0.3, train_size=0.7, random_state=0)
 
-# gaussian = GaussianNB()
-# gaussian.fit(x_train_reg, y_train_reg)
+print(f'x_train_reg: {x_train_reg.shape}')
+print(f'x_test_reg: {x_test_reg.shape}')
+print(f'y_train_reg: {y_train_reg.shape}')
+print(f'y_test_reg: {y_test_reg.shape}')
+
+# Creacion del modelo de bayes ingenuo (Naive Bayes)
+
+gaussian = GaussianNB()
+gaussian.fit(x_train_reg, y_train_reg)
 
 #Utilizando datos de entrenamiento
-# y_pred_train = gaussian.predict(x_train_reg)
+y_pred_train = gaussian.predict(x_train_reg)
 
-Dt_model = tree.DecisionTreeClassifier(random_state=0)
+# Dt_model = tree.DecisionTreeClassifier(random_state=0)
 
-Dt_model.fit(x_train_reg, y_train_reg)
+# Dt_model.fit(x_train_reg, y_train_reg)
 
-y_pred_train = Dt_model.predict(x_train_reg)
+# y_pred_train = Dt_model.predict(x_train_reg)
 
 
 accuracy=accuracy_score(y_train_reg,y_pred_train)
 precision =precision_score(y_train_reg, y_pred_train,average='weighted')
 recall =  recall_score(y_train_reg, y_pred_train,average='weighted')
 f1 = f1_score(y_train_reg,y_pred_train,average='weighted')
-print('Decision Tree Accuracy: ',accuracy)
-print('Decision Tree Accuracy: ',precision)
-print('Decision Tree Accuracy: ',recall)
+# print('Decision Tree Accuracy: ',accuracy)
+# print('Decision Tree Accuracy: ',precision)
+# print('Decision Tree Accuracy: ',recall)
+print('\nAccuracy: ',accuracy)
+print('Precision: ',precision)
+print('Recall: ',recall)
 
 cm = confusion_matrix(y_train_reg,y_pred_train)
 sn.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Económicas', 'Intermedias', 'Caras'], yticklabels=['Económicas', 'Intermedias', 'Caras'])
@@ -242,29 +251,41 @@ plt.title('Matriz de Confusion')
 plt.ylabel('Clasificación real')
 plt.xlabel('Clasificación predicha')
 plt.show()
-print('Matriz de confusion con valores de entrenamiento \n',cm)
+print('\nMatriz de confusion con valores de entrenamiento \n',cm)
 
+# Mostrando la variable categorica "Clasificacion" en conjuntos y prediccion
+print('\nClasificacion en conjuntos de entrenamiento\n',y_train_reg)
+print('\nClasificacion predicha en conjuntos de entrenamiento\n',y_pred_train)
+print('tamaño de conjunto predicho: ',len(y_pred_train))
 
 
 #Utilizando datos de prueba
-# y_pred = gaussian.predict(x_test_reg)
-y_pred = Dt_model.predict(x_test_reg)
+# y_pred = Dt_model.predict(x_test_reg)
+# Utilizando datos de prueba. Eficiencia del modelo
+y_pred = gaussian.predict(x_test_reg)
 accuracy=accuracy_score(y_test_reg,y_pred)
 precision =precision_score(y_test_reg, y_pred,average='weighted')
 recall =  recall_score(y_test_reg, y_pred,average='weighted')
 f1 = f1_score(y_test_reg,y_pred,average='weighted')
-print('Accuracy: ',accuracy)
+print('\nAccuracy: ',accuracy)
 print('Precision: ',precision)
 print('Recall: ',recall)
 
-
-#4
 cm = confusion_matrix(y_test_reg,y_pred)
 sn.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Económicas', 'Intermedias', 'Caras'], yticklabels=['Económicas', 'Intermedias', 'Caras'])
 plt.title('Matriz de Confusion')
 plt.ylabel('Clasificación real')
 plt.xlabel('Clasificación predicha')
 plt.show()
-print('Matriz de confusion con valores de test\n',cm)
+print('\nMatriz de confusion con valores de test\n',cm)
 
+# Validacion cruzada
 
+# validacion cruzada repetida (15 conjuntos en total)
+rkf = RepeatedKFold(n_splits=3, n_repeats=5, random_state=0)
+
+# eficiencia con la validacion cruzada repetida
+cv_scores = cross_val_score(gaussian, x, y, scoring='accuracy', cv=rkf)
+print("\n%0.5f de accuracy con una desviacion estandar de %0.5f" % (cv_scores.mean(), cv_scores.std()))
+
+print()
